@@ -1,0 +1,885 @@
+/* Sized for an 800x480 touchscreen; scales with the window elsewhere. */
+:root {
+  --bg: #0d1117;
+  --panel: #161b22;
+  --border: #2a313c;
+  --text: #e6edf3;
+  --text-dim: #8b98a5;
+  --green: #2ea043;
+  --yellow: #d4a72c;
+  --red: #d1373f;
+  --gray: #4b5563;
+  --accent: #1f6feb;
+  /* The hot-nozzle orange of the boot splash, for the setup screens. */
+  --brand: #ff9a4d;
+  --font-display: "Exo 2", -apple-system, "Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", Helvetica, Arial, sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+body.kiosk, body.kiosk * { cursor: none !important; }
+
+/* ---- top bar ---- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 2vw;
+  padding: 1vh 2vw;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  font-size: clamp(14px, 2.4vw, 22px);
+}
+
+.title {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.clock {
+  margin-left: auto;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.state-pill {
+  padding: 0.3vh 1.6vw;
+  border-radius: 999px;
+  background: var(--gray);
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.state-pill.printing { background: var(--accent); }
+.state-pill.busy { background: #8957e5; }
+.state-pill.paused { background: var(--yellow); color: #111; }
+.state-pill.complete { background: var(--green); }
+.state-pill.error, .state-pill.offline, .state-pill.unreachable { background: var(--red); }
+
+.icon-button {
+  display: flex;
+  padding: 0.4vh 0.6vw;
+  border: 0;
+  background: none;
+  color: var(--text-dim);
+}
+
+.icon-button svg {
+  width: 1.3em;
+  height: 1.3em;
+  fill: currentColor;
+}
+
+/* ---- alert banner (errors, pause, done) ---- */
+.alert {
+  padding: 1.2vh 2vw;
+  background: var(--red);
+  font-size: clamp(13px, 2.2vw, 20px);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alert.paused { background: var(--yellow); color: #111; }
+.alert.complete { background: var(--green); }
+
+/* ---- main layout ---- */
+.layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  /* minmax(0, …): the columns keep their share whatever is inside them. */
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 1.5vw;
+  padding: 1.5vw;
+}
+
+.camera-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2vh;
+  min-height: 0;
+}
+
+.camera {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #1e1e20;
+}
+
+.camera iframe,
+.camera img,
+.camera video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none;
+}
+
+.camera img,
+.camera video { object-fit: contain; }
+
+.camera-tap { position: absolute; inset: 0; }
+
+/* ---- layer preview ---- */
+.camera canvas.preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #0d1117;
+  pointer-events: none;
+}
+
+.preview-note {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  color: var(--text-dim);
+  font-size: clamp(11px, 1.7vw, 15px);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.view-switch {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  padding: 0.35em 0.9em;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(13, 17, 23, 0.78);
+  color: var(--text);
+  font: inherit;
+  font-size: clamp(12px, 1.8vw, 15px);
+  font-weight: 600;
+}
+
+/* (".camera .job-thumb", not ".job-thumb": the camera's own rule for images
+   would otherwise stretch it over the whole camera.) */
+.camera .job-thumb {
+  position: absolute;
+  inset: auto auto 8px 8px;
+  width: clamp(56px, 17%, 110px);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  padding: 4px;
+  border-radius: 8px;
+  background: rgba(13, 17, 23, 0.72);
+  border: 1px solid var(--border);
+  pointer-events: none;
+}
+
+.camera-msg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  font-size: clamp(13px, 2vw, 18px);
+}
+
+/* Tapping the camera fills the screen with it; tapping again goes back. */
+body.camera-full .topbar,
+body.camera-full .alert,
+body.camera-full .job,
+body.camera-full .stats { display: none !important; }
+body.camera-full .layout { grid-template-columns: 1fr; padding: 0; }
+body.camera-full .camera { border-radius: 0; }
+
+.job { flex: 0 0 auto; }
+
+.filename {
+  font-size: clamp(12px, 2vw, 18px);
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.8vh;
+}
+
+.bar {
+  height: clamp(8px, 1.8vh, 14px);
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transition: width 1s linear;
+}
+
+.bar-fill.paused { background: var(--yellow); }
+.bar-fill.complete { background: var(--green); }
+
+/* ---- stats column ---- */
+.stats {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5vh 2vw;
+}
+
+.big {
+  text-align: center;
+  padding-bottom: 1.2vh;
+  border-bottom: 1px solid var(--border);
+}
+
+.percent {
+  font-size: clamp(36px, 8.5vw, 80px);
+  font-weight: 700;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-left {
+  font-size: clamp(14px, 2.6vw, 24px);
+  font-weight: 600;
+}
+
+.finish-at {
+  font-size: clamp(12px, 2vw, 18px);
+  color: var(--text-dim);
+  min-height: 1.2em;
+}
+
+.rows {
+  flex: 1;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: clamp(13px, 2.2vw, 20px);
+}
+
+.row dt { color: var(--text-dim); }
+
+.row dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+.row .target { color: var(--text-dim); font-weight: 400; }
+
+/* Temperature history, faint, behind its row. */
+.row { position: relative; }
+.row > dt, .row > dd { position: relative; z-index: 1; }
+
+svg.spark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -4px;
+  bottom: -4px;
+  width: 100%;
+  height: calc(100% + 8px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+svg.spark .area { fill: rgba(255, 154, 77, 0.10); stroke: none; }
+svg.spark .line { fill: none; stroke: rgba(255, 154, 77, 0.55); stroke-width: 1.5; }
+svg.spark .target { fill: none; stroke: rgba(139, 152, 165, 0.6); stroke-width: 1; stroke-dasharray: 4 3; }
+
+/* How far through the current layer: a fill behind the Layer row, and the
+   time it has left beside the label. */
+.layer-fill {
+  --layer-fill: #58a6ff;
+  position: absolute;
+  left: 0;
+  top: -4px;
+  bottom: -4px;
+  width: 0;
+  background: var(--layer-fill);
+  opacity: 0.3;  /* the whole fill at once, so its overlapping ripples blend */
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Its leading edge moves like liquid: two irregular ripples (drawn in
+   index.html), each repeating down the row at its own length and speed, so
+   together they rarely look the same twice. */
+svg.layer-wave {
+  position: absolute;
+  left: calc(100% - 1px);  /* overlapping the fill, so no seam shows */
+  top: 0;
+  width: 10px;
+  height: 100%;
+  overflow: hidden;
+}
+
+svg.layer-wave .ripple { fill: var(--layer-fill); animation: ripple 5.3s linear infinite; }
+svg.layer-wave .ripple.slow { animation: ripple-slow 8.9s linear infinite; }
+
+@keyframes ripple {
+  from { transform: translateY(-56px); }
+  to { transform: translateY(0); }
+}
+
+@keyframes ripple-slow {
+  from { transform: translateY(0); }
+  to { transform: translateY(-90px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  svg.layer-wave .ripple { animation: none; }
+}
+
+.layer-left {
+  margin-left: 0.3em;
+  font-size: 0.7em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #b8d8ff;
+}
+
+/* Change since the last reading, beside a temperature. */
+.temp-change {
+  margin-left: 0.3em;
+  font-size: 0.7em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.temp-change.up { color: #f0a050; }
+.temp-change.down { color: #58a6ff; }
+
+/* ---- CFS: one panel per unit, a bar per slot ---- */
+.cfs {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 1.5vw;
+  padding-top: 1vh;
+  border-top: 1px solid var(--border);
+}
+
+.cfs-unit + .cfs-unit {
+  border-left: 1px solid var(--border);
+  padding-left: 1.5vw;
+}
+
+.cfs-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: clamp(11px, 1.8vw, 16px);
+  margin-bottom: 0.6vh;
+}
+
+.cfs-name { color: var(--text-dim); }
+.cfs-hum { font-weight: 600; font-variant-numeric: tabular-nums; }
+.cfs-hum.humid { color: var(--yellow); }
+
+.slots {
+  display: grid;
+  /* minmax(0, …): four even bars that always fit the unit's width, however
+     wide the labels under them ("100%" in a wide font). */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8vw;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  font-size: clamp(9px, 1.4vw, 13px);
+  font-variant-numeric: tabular-nums;
+}
+
+.tube {
+  position: relative;
+  width: 100%;
+  height: clamp(30px, 10vh, 60px);
+  border: 1px solid var(--gray);
+  border-radius: 4px;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* An inner edge, so black filament still shows against the dark tube. */
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+/* Remaining unknown (untagged spool): the color, faded and striped. */
+.slot.unknown .fill {
+  opacity: 0.45;
+  -webkit-mask-image: repeating-linear-gradient(135deg, #000 0 5px, transparent 5px 8px);
+  mask-image: repeating-linear-gradient(135deg, #000 0 5px, transparent 5px 8px);
+}
+
+.slot.empty .tube { border-style: dashed; }
+.slot.empty .slot-letter,
+.slot.empty .slot-pct { color: var(--gray); }
+
+.slot.loaded .tube { border: 2px solid var(--text); }
+
+/* Every slot has one so the rows line up; only the loaded slot's shows. */
+.caret {
+  width: 0;
+  height: 0;
+  margin-top: 0.4vh;
+  border-left: 0.5em solid transparent;
+  border-right: 0.5em solid transparent;
+  border-bottom: 0.6em solid transparent;
+}
+
+.slot.loaded .caret { border-bottom-color: var(--text); }
+
+.slot-letter {
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.slot.loaded .slot-letter { color: var(--text); }
+
+.slot-pct { color: var(--text-dim); white-space: nowrap; letter-spacing: -0.02em; }
+
+/* Three or four units: the two-unit layout, with a second pair underneath
+   (CFS 3 under CFS 1, CFS 4 under CFS 2), and shorter bars so both rows fit
+   under the other stats. */
+.cfs.two-rows {
+  grid-auto-flow: row;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  row-gap: 0.8vh;
+}
+
+/* The divider runs down the middle of both rows. */
+.cfs.two-rows .cfs-unit + .cfs-unit { border-left: 0; padding-left: 0; }
+.cfs.two-rows .cfs-unit:nth-child(even) {
+  border-left: 1px solid var(--border);
+  padding-left: 1.5vw;
+}
+
+.cfs.two-rows .tube { height: clamp(18px, 5.4vh, 34px); }
+.slot.low .slot-pct { color: var(--red); font-weight: 600; }
+
+/* ---- light button: a bulb, lit while the light is on ---- */
+.light-button svg { fill: none; }
+.light-button .bulb { stroke: currentColor; stroke-width: 1.6; }
+.light-button .base { stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+.light-button.on { color: #f4c542; }
+.light-button.on .bulb { fill: #f4c542; filter: drop-shadow(0 0 4px rgba(244, 197, 66, 0.7)); }
+.light-button:disabled { opacity: 0.5; }
+
+/* ---- settings button (press and hold) ---- */
+.settings-button {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+/* Fills up while held, so it's clear holding is doing something. */
+.settings-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 154, 77, 0.4);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.settings-button.holding::after {
+  transform: scaleX(1);
+  transition: transform 1.5s linear;
+}
+
+.alert.tappable { cursor: pointer; }
+
+/* ---- dashboard / Controls toggle ---- */
+.view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.3vh 1.2vw;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 0.75em;
+  font-weight: 600;
+}
+
+.view-toggle svg {
+  width: 1.2em;
+  height: 1.2em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.view-toggle[aria-pressed="true"] {
+  color: var(--bg);
+  background: var(--text);
+  border-color: var(--text);
+}
+
+/* ---- Controls view ---- */
+body.show-controls .layout { display: none; }
+
+.controls {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  grid-template-rows: auto 1fr;
+  gap: 1.5vw;
+  padding: 1.5vw;
+}
+
+.controls .card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.4vh 1.8vw;
+  min-width: 0;
+}
+
+.controls .temps-card { grid-column: 2; grid-row: 1 / span 2; }
+
+.controls h2 {
+  margin: 0 0 1vh;
+  font-size: clamp(13px, 2vw, 18px);
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.ctl-job {
+  margin-bottom: 1.2vh;
+  font-size: clamp(13px, 2.1vw, 19px);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ctl-row {
+  display: flex;
+  gap: 1vw;
+  flex-wrap: wrap;
+}
+
+.ctl-btn {
+  flex: 1;
+  min-height: 46px;
+  padding: 0 1vw;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: clamp(13px, 2vw, 18px);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ctl-btn:active:not(:disabled) { filter: brightness(1.5); }
+.ctl-btn:disabled { opacity: 0.35; }
+.ctl-btn.danger { border-color: var(--red); color: var(--red); }
+.ctl-btn.selected { border-color: var(--brand); color: var(--brand); }
+
+.ctl-note {
+  margin-top: 0.8vh;
+  color: var(--text-dim);
+  font-size: clamp(11px, 1.6vw, 14px);
+}
+
+/* Move pad: a step size, then a column per axis with its position. */
+.jog { margin-top: 1.4vh; padding-top: 1.4vh; border-top: 1px solid var(--border); }
+.jog-steps .ctl-btn { min-height: 38px; }
+
+.jog-axes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1vw;
+  margin-top: 1vh;
+}
+
+.jog-axis { display: flex; flex-direction: column; gap: 0.8vh; }
+.jog-axis .ctl-btn { flex: none; min-height: 42px; }
+
+.jog-pos {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: clamp(12px, 1.8vw, 16px);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A value you can tap to type a new one: looks like a small input box. */
+.value-box {
+  min-width: 3.6em;
+  padding: 0.15em 0.4em;
+  border: 1px solid var(--gray);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.value-box:disabled { color: var(--text-dim); border-style: dashed; }
+
+.heater + .heater {
+  margin-top: 1.4vh;
+  padding-top: 1.4vh;
+  border-top: 1px solid var(--border);
+}
+
+.heater-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.8vh;
+  font-size: clamp(13px, 2.1vw, 19px);
+}
+
+.heater-reading { display: flex; align-items: baseline; white-space: pre; }
+.heater-head .now { font-weight: 700; font-variant-numeric: tabular-nums; }
+.heater-reading .target { color: var(--text-dim); }
+
+.heater .ctl-btn { min-height: 42px; flex: 1 1 0; padding: 0; }
+
+/* ---- confirmation and toast ---- */
+.confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.confirm-card {
+  width: min(86vw, 520px);
+  padding: 3vh 3vw;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.confirm-card p {
+  margin: 0 0 2.5vh;
+  font-size: clamp(16px, 2.8vw, 24px);
+  font-weight: 600;
+}
+
+.confirm-card .ctl-btn.danger { background: var(--red); color: #fff; }
+
+/* ---- number pad ---- */
+.numpad {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.numpad-card {
+  display: flex;
+  gap: 3vw;
+  width: min(94vw, 720px);
+  padding: 2.5vh 3vw;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.numpad-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.numpad-title { font-size: clamp(16px, 2.8vw, 24px); font-weight: 700; margin-bottom: 1.5vh; }
+
+.numpad-field {
+  display: flex;
+  align-items: center;
+  padding: 1vh 1.5vw;
+  border: 1px solid var(--brand);
+  border-radius: 8px;
+  background: var(--bg);
+  font-size: clamp(24px, 4.6vw, 40px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-height: 1.6em;
+}
+
+.numpad-caret {
+  width: 2px;
+  height: 0.9em;
+  margin: 0 2px;
+  background: var(--brand);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+.numpad-unit { margin-left: auto; color: var(--text-dim); font-weight: 600; }
+.numpad-hint { margin-top: 1vh; color: var(--text-dim); font-size: clamp(12px, 1.9vw, 17px); min-height: 1.3em; }
+.numpad-hint.bad { color: var(--yellow); }
+.numpad-actions { margin-top: auto; }
+.ctl-btn.primary { background: var(--brand); border-color: var(--brand); color: #111; }
+
+.numpad-keys {
+  display: grid;
+  grid-template-columns: repeat(3, clamp(54px, 9vw, 76px));
+  grid-auto-rows: clamp(44px, 11vh, 62px);
+  gap: 1vw;
+}
+
+.numpad-keys button {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: clamp(18px, 3.4vw, 28px);
+  font-weight: 600;
+}
+
+.numpad-keys button:active { filter: brightness(1.5); }
+.numpad-keys svg { width: 1em; height: 1em; }
+
+.toast {
+  position: fixed;
+  z-index: 30;
+  left: 50%;
+  bottom: 4vh;
+  transform: translateX(-50%);
+  padding: 1vh 2.5vw;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-weight: 600;
+  font-size: clamp(13px, 2vw, 18px);
+}
+
+.toast.bad { border-color: var(--yellow); color: var(--yellow); }
+
+/* ---- split screen (Settings → Display) while printing: camera on top,
+   layer preview below ---- */
+body.split .camera iframe,
+body.split .camera #camera-img,
+body.split .camera video,
+body.split .camera-msg {
+  top: 0;
+  bottom: auto;
+  height: 50%;
+}
+
+body.split .camera canvas.preview {
+  top: 50%;
+  bottom: auto;
+  height: 50%;
+  border-top: 1px solid var(--border);
+}
+
+body.split .preview-note { top: calc(50% + 8px); }
+body.split .camera .job-thumb { bottom: calc(50% + 8px); }
+
+/* ---- Cast ---- */
+.cast-button svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cast-button.on { color: var(--brand); }
+
+.cast-card { width: min(90vw, 560px); }
+
+.cast-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2vw;
+  margin-bottom: 1.5vh;
+}
+
+.cast-head p { margin: 0; }
+.cast-head .ctl-btn { flex: none; padding: 0 3vw; }
+
+.cast-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  max-height: 52vh;
+  overflow-y: auto;
+  margin-bottom: 1.5vh;
+}
+
+.cast-row {
+  display: flex;
+  align-items: center;
+  gap: 2vw;
+  padding: 1vh 1.5vw;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.cast-row.on { border-color: var(--brand); }
+.cast-name { flex: 1; min-width: 0; font-weight: 600; }
+.cast-model { display: block; color: var(--text-dim); font-size: 0.8em; font-weight: 400; }
+.cast-row .ctl-btn { flex: none; min-width: 6.5em; }
+.cast-empty { color: var(--text-dim); padding: 1vh 0; }
+
+/* ---- cast screens (?cast): split while printing, and nothing to tap ---- */
+body.cast-view .view-switch { display: none; }

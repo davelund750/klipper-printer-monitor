@@ -1,0 +1,283 @@
+/* A look after the Klingon ships' panels in Star Trek: black and deep red,
+   cut at sharp angles, with amber readouts and blade shapes. For
+   Settings → Display → Look (see applyTheme in app.js); everything here is
+   under body.klingon. */
+body.klingon {
+  --kl-blood: #c8141e;
+  --kl-red: #8e0d14;
+  --kl-dark: #3a0508;
+  --kl-ember: #1a0304;
+  --kl-amber: #f0a830;
+  --kl-gold: #ffd27a;
+  --kl-bone: #e8d6b0;
+  --kl-side: 4.5vw; /* the spine down the left */
+  --kl-cut: 1.4vw; /* how deep the angled corners cut */
+  --bg: #050101;
+  --panel: var(--kl-ember);
+  --border: #4a0a0e;
+  --text: var(--kl-bone);
+  --text-dim: #b07a6a;
+  --brand: var(--kl-amber);
+  font-family: "Chakra Petch", "Arial Narrow", "DejaVu Sans Condensed", sans-serif;
+  /* No capitals: the dashboard speaks Klingon here (see KLINGON in app.js),
+     whose spelling depends on case (q and Q are different letters). */
+  letter-spacing: 0.06em;
+  background: radial-gradient(ellipse at 50% 0, #1e0204 0, #050101 70%);
+  padding: 1vh 1vw;
+}
+
+/* ---- the top bar: a long wedge ---- */
+body.klingon .topbar {
+  gap: 0.8vw;
+  padding: 0.6vh 4vw;
+  background: linear-gradient(180deg, var(--kl-dark), var(--kl-ember));
+  border: 0;
+  border-bottom: 2px solid var(--kl-blood);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 3vw) 100%, 3vw 100%);
+  font-size: clamp(15px, 2.7vw, 28px);
+}
+
+body.klingon .title {
+  color: var(--kl-amber);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-shadow: 0 0 8px rgba(240, 168, 48, 0.45);
+}
+
+/* Segments: slanted both ends. */
+body.klingon .state-pill,
+body.klingon .view-toggle,
+body.klingon .icon-button {
+  border: 0;
+  border-radius: 0;
+  clip-path: polygon(0.6em 0, 100% 0, calc(100% - 0.6em) 100%, 0 100%);
+}
+
+body.klingon .state-pill {
+  padding: 0.25vh 1.6vw;
+  background: var(--kl-red);
+  color: var(--kl-gold);
+  font-weight: 700;
+}
+
+body.klingon .state-pill.printing { background: var(--kl-blood); color: #fff; }
+body.klingon .state-pill.busy { background: #6a1640; color: var(--kl-gold); }
+body.klingon .state-pill.paused { background: var(--kl-amber); color: #000; }
+body.klingon .state-pill.complete { background: #2f5a24; color: #d8f0b0; }
+body.klingon .state-pill.error,
+body.klingon .state-pill.offline,
+body.klingon .state-pill.unreachable {
+  background: var(--kl-blood);
+  color: #fff;
+  animation: klingon-alert 0.8s steps(1) infinite;
+}
+
+@keyframes klingon-alert { 50% { background: #300000; color: var(--kl-blood); } }
+
+body.klingon .clock { color: var(--kl-gold); font-weight: 700; }
+
+body.klingon .view-toggle { padding: 0.3vh 1.6vw; background: var(--kl-dark); color: var(--kl-amber); }
+body.klingon .view-toggle[aria-pressed="true"] { background: var(--kl-amber); color: #000; }
+body.klingon .icon-button { padding: 0.4vh 1.1vw; background: var(--kl-dark); color: var(--kl-amber); }
+body.klingon .cast-button.on,
+body.klingon .light-button.on { background: var(--kl-amber); color: #000; }
+body.klingon .light-button.on .bulb { fill: #000; filter: none; }
+
+/* ---- the spine: a tapering blade in segments, with a battle cry ---- */
+body.klingon .layout,
+body.klingon .controls {
+  position: relative;
+  padding: 1.4vh 0.4vw 0 calc(var(--kl-side) + 1.4vw);
+}
+
+body.klingon .layout::before,
+body.klingon .controls::before {
+  content: "Qapla'";
+  position: absolute;
+  left: 0.6vw;
+  top: 1.4vh;
+  bottom: 0;
+  width: var(--kl-side);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: #000;
+  font-weight: 700;
+  font-size: clamp(11px, 1.9vw, 20px);
+  letter-spacing: 0.4em;
+  background: repeating-linear-gradient(180deg, var(--kl-blood) 0 15%, transparent 15% 17%),
+    var(--kl-red);
+  background-blend-mode: normal;
+  clip-path: polygon(0 3%, 50% 0, 100% 3%, 100% 90%, 50% 100%, 0 90%);
+}
+
+/* An alert spans the width, under the bar. */
+body.klingon .alert {
+  margin: 0.6vh 3vw 0;
+  background: var(--kl-blood);
+  color: #fff;
+  letter-spacing: 0.12em;
+  clip-path: polygon(1vw 0, calc(100% - 1vw) 0, 100% 50%, calc(100% - 1vw) 100%, 1vw 100%, 0 50%);
+  text-align: center;
+}
+
+body.klingon .alert.paused { background: var(--kl-amber); color: #000; }
+body.klingon .alert.complete { background: #2f5a24; color: #d8f0b0; }
+
+/* ---- camera and job: corners cut off ---- */
+body.klingon .camera {
+  border-radius: 0;
+  background: #0c0202;
+  clip-path: polygon(var(--kl-cut) 0, 100% 0, 100% calc(100% - var(--kl-cut)), calc(100% - var(--kl-cut)) 100%, 0 100%, 0 var(--kl-cut));
+  box-shadow: inset 0 0 0 1px var(--kl-red);
+}
+
+body.klingon .camera canvas.preview { background: #070101; }
+body.klingon .camera-msg { color: var(--kl-amber); letter-spacing: 0.14em; }
+body.klingon .preview-note { color: var(--kl-gold); }
+body.klingon .camera .job-thumb { border-radius: 0; border-color: var(--kl-blood); background: rgba(10, 0, 0, 0.75); }
+body.klingon.split .camera canvas.preview { border-top: 2px solid var(--kl-blood); }
+
+body.klingon .view-switch {
+  border: 0;
+  border-radius: 0;
+  background: var(--kl-blood);
+  color: #fff;
+  clip-path: polygon(0.6em 0, 100% 0, calc(100% - 0.6em) 100%, 0 100%);
+}
+
+body.klingon .filename { color: var(--kl-gold); }
+
+/* Progress: slanted blades on a slanted track. */
+body.klingon .bar {
+  height: clamp(10px, 2.2vh, 18px);
+  border-radius: 0;
+  background: var(--kl-dark);
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+
+body.klingon .bar-fill { background: repeating-linear-gradient(115deg, var(--kl-blood) 0 12px, #200 12px 16px); }
+body.klingon .bar-fill.paused { background: repeating-linear-gradient(115deg, var(--kl-amber) 0 12px, #200 12px 16px); }
+body.klingon .bar-fill.complete { background: repeating-linear-gradient(115deg, #4a8a38 0 12px, #200 12px 16px); }
+
+/* ---- the readouts: a panel with its corners cut, a blade down its edge ---- */
+body.klingon .stats {
+  border: 0;
+  border-left: 0.6vw solid var(--kl-blood);
+  border-top: 2px solid var(--kl-red);
+  border-radius: 0;
+  background: linear-gradient(160deg, #240406, var(--kl-ember) 45%, #0b0101);
+  clip-path: polygon(0 0, calc(100% - 2.2vw) 0, 100% 2.2vw, 100% 100%, 2.2vw 100%, 0 calc(100% - 2.2vw));
+}
+
+body.klingon .big { border-bottom: 2px solid var(--kl-red); }
+body.klingon .percent { color: var(--kl-amber); text-shadow: 0 0 12px rgba(240, 168, 48, 0.4); }
+body.klingon .time-left { color: var(--kl-gold); }
+body.klingon .finish-at { color: var(--text-dim); }
+
+body.klingon .stats { letter-spacing: 0; }
+body.klingon .row { font-size: clamp(12px, 1.95vw, 19px); }
+body.klingon .row dt { color: var(--text-dim); white-space: nowrap; }
+body.klingon .row dd { color: var(--kl-bone); white-space: nowrap; gap: 0.35em; }
+body.klingon .row .target { color: var(--text-dim); }
+
+/* A red blade point before each label. */
+body.klingon .row dt::before {
+  content: "";
+  display: inline-block;
+  width: 0.55em;
+  height: 0.7em;
+  margin-right: 0.4em;
+  background: var(--kl-blood);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+body.klingon svg.spark .area { fill: rgba(200, 20, 30, 0.14); }
+body.klingon svg.spark .line { stroke: rgba(230, 60, 50, 0.65); }
+body.klingon svg.spark .target { stroke: rgba(240, 168, 48, 0.5); }
+body.klingon .layer-fill { --layer-fill: #c8141e; opacity: 0.38; }
+body.klingon .layer-left { color: var(--kl-amber); }
+body.klingon .temp-change.up { color: var(--kl-amber); }
+body.klingon .temp-change.down { color: #7fb0d0; }
+
+/* ---- CFS ---- */
+body.klingon .cfs { border-top: 2px solid var(--kl-red); }
+body.klingon .cfs-unit + .cfs-unit,
+body.klingon .cfs.two-rows .cfs-unit:nth-child(even) { border-left-color: var(--kl-red); }
+body.klingon .cfs-head { font-size: clamp(10px, 1.6vw, 15px); }
+body.klingon .cfs-name { color: var(--kl-amber); }
+body.klingon .cfs-hum { color: var(--kl-gold); }
+body.klingon .cfs-hum.humid { color: var(--kl-blood); }
+body.klingon .tube {
+  border-color: #5a1a1c;
+  border-radius: 0;
+  background: #0a0101;
+  clip-path: polygon(0 18%, 50% 0, 100% 18%, 100% 100%, 0 100%);
+}
+body.klingon .slot.loaded .tube { border-color: var(--kl-amber); }
+body.klingon .slot.loaded .caret { border-bottom-color: var(--kl-amber); }
+body.klingon .slot-letter, body.klingon .slot-pct { color: var(--text-dim); }
+/* Its wide figures: four "100%"s side by side need room. */
+body.klingon .slot-pct { letter-spacing: -0.04em; font-size: 0.9em; }
+body.klingon .slot.loaded .slot-letter { color: var(--kl-amber); }
+body.klingon .slot.low .slot-pct { color: var(--kl-blood); }
+
+/* ---- full-screen camera: no frame ---- */
+body.klingon.camera-full { padding: 0; }
+body.klingon.camera-full .layout { padding: 0; }
+body.klingon.camera-full .layout::before { display: none; }
+body.klingon.camera-full .camera { clip-path: none; box-shadow: none; }
+
+/* ---- Controls, dialogs and buttons ---- */
+body.klingon .controls .card,
+body.klingon .confirm-card,
+body.klingon .numpad-card {
+  border: 0;
+  border-left: 0.6vw solid var(--kl-blood);
+  border-top: 2px solid var(--kl-red);
+  border-radius: 0;
+  background: linear-gradient(160deg, #240406, var(--kl-ember) 50%);
+  clip-path: polygon(0 0, calc(100% - 1.8vw) 0, 100% 1.8vw, 100% 100%, 1.8vw 100%, 0 calc(100% - 1.8vw));
+}
+
+body.klingon .controls h2,
+body.klingon .confirm-card p,
+body.klingon .numpad-title { color: var(--kl-amber); letter-spacing: 0.12em; }
+body.klingon .jog, body.klingon .heater + .heater { border-top-color: var(--border); }
+
+body.klingon .ctl-btn,
+body.klingon .numpad-keys button {
+  border: 0;
+  border-radius: 0;
+  background: var(--kl-dark);
+  color: var(--kl-gold);
+  font-weight: 700;
+  clip-path: polygon(0.7em 0, 100% 0, calc(100% - 0.7em) 100%, 0 100%);
+}
+
+body.klingon .ctl-btn.selected,
+body.klingon .ctl-btn.primary { background: var(--kl-amber); color: #000; }
+body.klingon .ctl-btn.danger { background: var(--kl-blood); color: #fff; }
+
+body.klingon .value-box,
+body.klingon .numpad-field {
+  border: 1px solid var(--kl-blood);
+  border-radius: 0;
+  background: #0a0101;
+  color: var(--kl-gold);
+}
+
+body.klingon .cast-row { border: 0; border-left: 0.6vw solid var(--kl-red); border-radius: 0; background: #120203; }
+body.klingon .cast-row.on { border-left-color: var(--kl-amber); }
+
+body.klingon .toast {
+  border: 0;
+  border-left: 0.8vw solid var(--kl-amber);
+  border-radius: 0;
+  background: #120203;
+  color: var(--kl-gold);
+}
+
+body.klingon .toast.bad { border-left-color: var(--kl-blood); color: var(--kl-blood); }

@@ -1,0 +1,12 @@
+# go2rtc for `make run` (install.sh writes the kiosk's own). Only this
+# computer can reach it: its API can add sources that run commands. The
+# server relays the camera to cast screens (see server/casting.py).
+api:
+  listen: "127.0.0.1:1984"
+rtsp:
+  listen: ""
+webrtc:
+  listen: ""
+streams:
+  camera:
+    - webrtc:http://192.168.86.34:8000/call/webrtc_local#format=creality

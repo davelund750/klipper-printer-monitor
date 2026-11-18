@@ -1,0 +1,27 @@
+# Runs the tests on every push and pull request. make release (tools/
+# release.sh) won't publish a commit these failed on.
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+# Read-only: the tests need nothing else, so a pull request can't use the
+# token to change the repository.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Server
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Weekly update script
+        run: bash tests/test_update.sh
+
+      - name: Release script
+        run: bash tests/test_release.sh

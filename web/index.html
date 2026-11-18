@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Klipper Printer Monitor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div id="printer-name" class="title">Printer</div>
+    <div id="state" class="state-pill">Connecting…</div>
+    <div id="clock" class="clock"></div>
+    <!-- Switches between the dashboard and the Controls view (kiosk only). -->
+    <button id="controls-toggle" class="view-toggle" aria-pressed="false" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+      <span id="controls-toggle-label">Controls</span>
+    </button>
+    <!-- Sends the dashboard to TVs and Nest Hubs (kiosk only; see casting.py). -->
+    <button id="cast-open" class="icon-button cast-button" aria-label="Cast to a screen" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18.5a2.5 2.5 0 0 1 2.5 2.5M3 14.5A6.5 6.5 0 0 1 9.5 21M3 10.5A10.5 10.5 0 0 1 13.5 21M3 7V5a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3.5"/></svg>
+    </button>
+    <!-- The printer's light, on the kiosk itself (see server.py's find_light). -->
+    <button id="light" class="icon-button light-button" aria-label="Light" aria-pressed="false" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path class="bulb" d="M12 2.5a6.5 6.5 0 0 0-3.9 11.7c.6.5.9 1.1.9 1.8v.5h6v-.5c0-.7.3-1.3.9-1.8A6.5 6.5 0 0 0 12 2.5z"/><path class="base" d="M9 18.5h6M9.8 21h4.4"/></svg>
+    </button>
+    <button id="settings-open" class="icon-button settings-button" aria-label="Settings (press and hold)" title="Press and hold for settings" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.9a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
+    </button>
+  </header>
+
+  <div id="alert" class="alert" hidden>
+    <span id="alert-text"></span>
+  </div>
+
+  <main class="layout">
+    <section class="camera-pane">
+      <div id="camera" class="camera" title="Tap for full screen; press and hold to restart the camera">
+        <!-- One of these, depending on the printer's webcam (see loadCamera). -->
+        <iframe id="camera-frame" title="Printer camera" scrolling="no" sandbox="allow-scripts allow-same-origin" hidden></iframe>
+        <img id="camera-img" alt="Printer camera" hidden>
+        <video id="camera-video" muted autoplay playsinline hidden></video>
+        <!-- Catches taps, which an iframe would otherwise swallow. -->
+        <!-- The layer preview: the current layer, drawn from the G-code. -->
+        <canvas id="preview" class="preview" hidden></canvas>
+        <div id="preview-note" class="preview-note" hidden></div>
+        <!-- The model being printed: its slicer's preview picture. -->
+        <img id="job-thumb" class="job-thumb" alt="" hidden>
+        <div class="camera-tap"></div>
+        <div id="camera-msg" class="camera-msg" hidden>Camera unavailable</div>
+        <!-- Camera / layer preview, while a job is printing. -->
+        <button id="view-switch" class="view-switch" hidden>Preview</button>
+      </div>
+      <div class="job">
+        <div id="filename" class="filename">—</div>
+        <div class="bar"><div id="bar-fill" class="bar-fill"></div></div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="big">
+        <div id="percent" class="percent">—</div>
+        <div id="time-left" class="time-left"></div>
+        <div id="finish-at" class="finish-at"></div>
+      </div>
+      <dl class="rows">
+        <div class="row" id="layer-row"><div id="layer-fill" class="layer-fill"><svg class="layer-wave" viewBox="0 0 10 40" preserveAspectRatio="none" aria-hidden="true"><path class="ripple slow" d="M2.2 -83.2 C1.9 -80.8 1.7 -78.6 1.9 -75.6 C2.2 -72.5 2.5 -68.8 3.5 -64.8 C4.4 -60.8 7.7 -55.5 7.5 -51.6 C7.4 -47.6 2.8 -44.4 2.4 -41.2 C2.1 -38 5 -36 5.7 -32.3 C6.3 -28.5 6.4 -22.1 6.1 -18.8 C5.8 -15.5 4.4 -15.7 4 -12.6 C3.5 -9.4 3.6 -3.2 3.3 0 C3 3.2 2.4 4.4 2.2 6.8 C1.9 9.2 1.7 11.4 1.9 14.4 C2.2 17.5 2.5 21.2 3.5 25.2 C4.4 29.2 7.7 34.5 7.5 38.4 C7.4 42.4 2.8 45.6 2.4 48.8 C2.1 52 5 54 5.7 57.7 C6.3 61.5 6.4 67.9 6.1 71.2 C5.8 74.5 4.4 74.3 4 77.4 C3.5 80.6 3.6 86.8 3.3 90 C3 93.2 2.4 94.4 2.2 96.8 C1.9 99.2 1.7 101.4 1.9 104.4 C2.2 107.5 2.5 111.2 3.5 115.2 C4.4 119.2 7.7 124.5 7.5 128.4 C7.4 132.4 2.8 135.6 2.4 138.8 C2.1 142 5 144 5.7 147.7 C6.3 151.5 6.4 157.9 6.1 161.2 C5.8 164.5 4.4 164.3 4 167.4 C3.5 170.6 3.6 176.8 3.3 180 C3 183.2 2.4 184.4 2.2 186.8 C1.9 189.2 1.7 191.4 1.9 194.4 C2.2 197.5 2.5 201.2 3.5 205.2 C4.4 209.2 7.7 214.5 7.5 218.4 C7.4 222.4 2.8 225.6 2.4 228.8 C2.1 232 5 234 5.7 237.7 C6.3 241.5 6.4 247.9 6.1 251.2 L0 251.2 L0 -83.2Z"/><path class="ripple" d="M1.3 -47.9 C1.2 -45.4 4.4 -44 4.5 -41.1 C4.5 -38.2 2 -33.3 1.6 -30.5 C1.1 -27.7 1.3 -26.9 1.7 -24.3 C2.2 -21.6 3.4 -17.6 4.4 -14.5 C5.4 -11.5 7.5 -8.5 7.6 -6.1 C7.7 -3.7 6.1 -2.4 5.1 0 C4 2.4 1.4 5.6 1.3 8.1 C1.2 10.6 4.4 12 4.5 14.9 C4.5 17.8 2 22.7 1.6 25.5 C1.1 28.3 1.3 29.1 1.7 31.7 C2.2 34.4 3.4 38.4 4.4 41.5 C5.4 44.5 7.5 47.5 7.6 49.9 C7.7 52.3 6.1 53.6 5.1 56 C4 58.4 1.4 61.6 1.3 64.1 C1.2 66.6 4.4 68 4.5 70.9 C4.5 73.8 2 78.7 1.6 81.5 C1.1 84.3 1.3 85.1 1.7 87.7 C2.2 90.4 3.4 94.4 4.4 97.5 C5.4 100.5 7.5 103.5 7.6 105.9 C7.7 108.3 6.1 109.6 5.1 112 C4 114.4 1.4 117.6 1.3 120.1 C1.2 122.6 4.4 124 4.5 126.9 C4.5 129.8 2 134.7 1.6 137.5 C1.1 140.3 1.3 141.1 1.7 143.7 C2.2 146.4 3.4 150.4 4.4 153.5 L0 153.5 L0 -47.9Z"/></svg></div><dt><span data-say="Layer">Layer</span><span id="layer-left" class="layer-left"></span></dt><dd id="layer">—</dd></div>
+        <div class="row"><dt><span data-say="Elapsed">Elapsed</span></dt><dd id="elapsed">—</dd></div>
+        <div class="row"><dt><span data-say="Nozzle">Nozzle</span></dt><dd id="temp-nozzle">—</dd></div>
+        <div class="row"><dt><span data-say="Bed">Bed</span></dt><dd id="temp-bed">—</dd></div>
+        <div class="row" id="chamber-row"><dt><span data-say="Chamber">Chamber</span></dt><dd id="temp-chamber">—</dd></div>
+      </dl>
+      <div id="cfs" class="cfs" hidden></div>
+    </section>
+  </main>
+
+  <!-- Controls: a separate view, in place of the dashboard (kiosk only). -->
+  <main id="controls" class="controls" hidden>
+    <section class="card print-card">
+      <h2>Print</h2>
+      <div id="ctl-job" class="ctl-job">—</div>
+      <div class="ctl-row">
+        <button id="ctl-pause" class="ctl-btn">Pause</button>
+        <button id="ctl-cancel" class="ctl-btn danger">Cancel print</button>
+      </div>
+    </section>
+    <section class="card machine-card">
+      <h2>Machine</h2>
+      <div class="ctl-row">
+        <button class="ctl-btn" data-action="cooldown">Cool down</button>
+        <button class="ctl-btn" data-action="home" data-idle-only>Home all</button>
+        <button class="ctl-btn" data-action="motors_off" data-idle-only>Motors off</button>
+      </div>
+      <!-- Moving an axis: pick a step, then + or −. -->
+      <div class="jog">
+        <div id="jog-steps" class="ctl-row jog-steps">
+          <button class="ctl-btn" data-step="0.1">0.1 mm</button>
+          <button class="ctl-btn selected" data-step="1">1 mm</button>
+          <button class="ctl-btn" data-step="10">10 mm</button>
+        </div>
+        <div class="jog-axes">
+          <div class="jog-axis" data-axis="x"><div class="jog-pos">X <button class="value-box">—</button></div>
+            <button class="ctl-btn" data-dir="-1">X −</button><button class="ctl-btn" data-dir="1">X +</button></div>
+          <div class="jog-axis" data-axis="y"><div class="jog-pos">Y <button class="value-box">—</button></div>
+            <button class="ctl-btn" data-dir="-1">Y −</button><button class="ctl-btn" data-dir="1">Y +</button></div>
+          <div class="jog-axis" data-axis="z"><div class="jog-pos">Z <button class="value-box">—</button></div>
+            <button class="ctl-btn" data-dir="-1">Z −</button><button class="ctl-btn" data-dir="1">Z +</button></div>
+        </div>
+      </div>
+      <div id="ctl-idle-note" class="ctl-note" hidden>Temperatures, moving and homing work when the printer is idle.</div>
+      <div id="ctl-home-note" class="ctl-note" hidden>Home all first to move.</div>
+    </section>
+    <section class="card temps-card">
+      <h2>Temperatures</h2>
+      <div id="ctl-heaters"></div>
+    </section>
+  </main>
+
+  <!-- Asks before anything that stops a print. -->
+  <div id="confirm" class="confirm" hidden>
+    <div class="confirm-card" role="alertdialog" aria-labelledby="confirm-text">
+      <p id="confirm-text"></p>
+      <div class="ctl-row">
+        <button id="confirm-no" class="ctl-btn"></button>
+        <button id="confirm-yes" class="ctl-btn danger"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Typing a temperature or position: a number pad (the kiosk has no
+       keyboard, and the Pi's own can't appear over it). -->
+  <div id="numpad" class="numpad" hidden>
+    <div class="numpad-card" role="dialog" aria-labelledby="numpad-title">
+      <div class="numpad-main">
+        <div id="numpad-title" class="numpad-title"></div>
+        <div class="numpad-field"><span id="numpad-value"></span><span class="numpad-caret"></span><span id="numpad-unit" class="numpad-unit"></span></div>
+        <div id="numpad-hint" class="numpad-hint"></div>
+        <div class="ctl-row numpad-actions">
+          <button id="numpad-cancel" class="ctl-btn">Cancel</button>
+          <button id="numpad-set" class="ctl-btn primary">Set</button>
+        </div>
+      </div>
+      <div id="numpad-keys" class="numpad-keys">
+        <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button>
+        <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button>
+        <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button>
+        <button data-key=".">.</button><button data-key="0">0</button><button data-key="back" aria-label="Delete"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12zM12.5 9.5l5 5m0-5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cast: pick the screens to send the dashboard to. -->
+  <div id="cast" class="confirm" hidden>
+    <div class="confirm-card cast-card" role="dialog" aria-labelledby="cast-title">
+      <div class="cast-head">
+        <p id="cast-title">Cast to a screen</p>
+        <button id="cast-close" class="ctl-btn">Close</button>
+      </div>
+      <div id="cast-list" class="cast-list"></div>
+      <div class="ctl-row">
+        <button id="cast-refresh" class="ctl-btn">Search again</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

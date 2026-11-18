@@ -1,0 +1,333 @@
+/* A trial look after Star Trek: The Next Generation's LCARS panels: black,
+   with bars of orange, peach, lavender and blue around the edges, rounded
+   ends, and condensed capitals. Only for pages opened with ?theme=lcars (see
+   app.js); everything here is under body.lcars. */
+body.lcars {
+  --lc-orange: #ff9900;
+  --lc-peach: #ffcc99;
+  --lc-tan: #ffcc66;
+  --lc-lavender: #cc99cc;
+  --lc-violet: #9999ff;
+  --lc-blue: #99ccff;
+  --lc-rust: #cc6644;
+  --lc-red: #dd4444;
+  --lc-side: 9vw; /* the sidebar down the left */
+  --lc-bar: clamp(28px, 7vh, 52px); /* the bar along the top */
+  --lc-gap: 4px; /* the black gaps between segments */
+  --bg: #000;
+  --panel: #000;
+  --border: #333;
+  --text: #ffcc99;
+  --text-dim: #cc99cc;
+  --brand: var(--lc-orange);
+  font-family: Antonio, "Arial Narrow", "Roboto Condensed", "DejaVu Sans Condensed", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  background: #000;
+  padding: 1.2vh 1.2vw;
+}
+
+/* ---- the top bar: one strip of segments, the left end curving down into
+   the sidebar ---- */
+body.lcars .topbar {
+  gap: var(--lc-gap);
+  height: var(--lc-bar);
+  padding: 0;
+  background: none;
+  border: 0;
+  align-items: stretch;
+  font-size: clamp(15px, 2.9vw, 30px);
+}
+
+body.lcars .topbar::before {
+  content: "";
+  flex: 0 0 calc(var(--lc-side) + 6vw);
+  background: var(--lc-orange);
+  border-top-left-radius: calc(var(--lc-bar) * 1.4) var(--lc-bar);
+}
+
+body.lcars .topbar::after {
+  content: "";
+  flex: 0 0 3vw;
+  background: var(--lc-lavender);
+  border-radius: 0 999px 999px 0;
+}
+
+body.lcars .topbar > * {
+  display: flex;
+  align-items: center;
+  border: 0;
+  border-radius: 0;
+  color: #000;
+}
+
+body.lcars .title {
+  flex: 1;
+  justify-content: flex-end;
+  padding: 0 1vw;
+  background: var(--lc-orange);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+body.lcars .state-pill {
+  padding: 0 1.8vw;
+  font-size: 0.75em;
+  font-weight: 700;
+  background: var(--lc-blue);
+}
+
+body.lcars .state-pill.printing { background: var(--lc-tan); }
+body.lcars .state-pill.busy { background: var(--lc-lavender); }
+body.lcars .state-pill.paused { background: var(--lc-orange); color: #000; }
+body.lcars .state-pill.complete { background: #99cc99; }
+body.lcars .state-pill.error,
+body.lcars .state-pill.offline,
+body.lcars .state-pill.unreachable {
+  background: var(--lc-red);
+  animation: lcars-alert 1s steps(1) infinite;
+}
+
+@keyframes lcars-alert { 50% { background: #661111; color: var(--lc-red); } }
+
+body.lcars .clock {
+  margin: 0;
+  padding: 0 1.4vw;
+  background: var(--lc-peach);
+  font-size: 0.75em;
+  font-weight: 700;
+}
+
+body.lcars .view-toggle {
+  padding: 0 1.2vw;
+  background: var(--lc-lavender);
+  font-size: 0.6em;
+}
+
+body.lcars .view-toggle[aria-pressed="true"] { background: var(--lc-tan); color: #000; }
+body.lcars .icon-button { padding: 0 1vw; background: var(--lc-violet); }
+body.lcars .cast-button { background: var(--lc-blue); }
+body.lcars .cast-button.on { background: var(--lc-tan); color: #000; }
+body.lcars .light-button { background: var(--lc-tan); }
+body.lcars .light-button.on { background: #fff2a8; color: #000; }
+body.lcars .light-button.on .bulb { fill: #000; filter: none; }
+body.lcars .settings-button { background: var(--lc-rust); }
+
+/* ---- the sidebar: the top bar's left end carried down the screen, in
+   segments ---- */
+body.lcars .layout,
+body.lcars .controls {
+  position: relative;
+  padding: 1.6vh 0 0 calc(var(--lc-side) + 1.6vw);
+}
+
+body.lcars .layout::before,
+body.lcars .controls::before {
+  content: "02-KPM\A 7125";
+  white-space: pre;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--lc-side);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 0 0.5vw 0.6vh 0;
+  box-sizing: border-box;
+  color: #000;
+  font-size: clamp(10px, 1.5vw, 15px);
+  line-height: 1.1;
+  text-align: right;
+  background: linear-gradient(
+    var(--lc-orange) 0 34%, #000 34% calc(34% + var(--lc-gap)),
+    var(--lc-lavender) calc(34% + var(--lc-gap)) 56%, #000 56% calc(56% + var(--lc-gap)),
+    var(--lc-peach) calc(56% + var(--lc-gap)) 70%, #000 70% calc(70% + var(--lc-gap)),
+    var(--lc-violet) calc(70% + var(--lc-gap)) 100%);
+  border-bottom-left-radius: 2vw;
+}
+
+/* The inside of the corner, where the top bar turns down. */
+body.lcars .layout::after,
+body.lcars .controls::after {
+  content: "";
+  position: absolute;
+  left: var(--lc-side);
+  top: 0;
+  width: 1.6vw;
+  height: 1.6vw;
+  background: radial-gradient(circle at 100% 100%, transparent 1.6vw, var(--lc-orange) calc(1.6vw + 0.5px));
+}
+
+/* An alert between the bar and the screen keeps the sidebar going past it. */
+body.lcars .alert {
+  margin: 0;
+  padding: 0.9vh 2vw 0.9vh calc(var(--lc-side) + 1.6vw + 1.2vw);
+  color: #000;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background:
+    linear-gradient(90deg, var(--lc-orange) 0 var(--lc-side), #000 var(--lc-side) calc(var(--lc-side) + 1.6vw), transparent 0),
+    var(--lc-red);
+  background-clip: padding-box;
+}
+
+body.lcars .alert.paused { background-color: var(--lc-tan); }
+body.lcars .alert.complete { background-color: #99cc99; }
+body.lcars .alert:not([hidden]) + .layout::after { display: none; }
+
+/* ---- camera and job ---- */
+body.lcars .camera { border-radius: 0 1.2vw 0 0; background: #0a0a0a; }
+body.lcars .camera canvas.preview { background: #000; }
+body.lcars .camera-msg { color: var(--lc-tan); letter-spacing: 0.1em; }
+body.lcars .preview-note { color: var(--lc-blue); }
+body.lcars .camera .job-thumb { border-radius: 0; border-color: var(--lc-violet); background: rgba(0, 0, 0, 0.75); }
+body.lcars.split .camera canvas.preview { border-top: var(--lc-gap) solid #000; box-shadow: inset 0 2px 0 var(--lc-violet); }
+
+body.lcars .view-switch {
+  border: 0;
+  border-radius: 999px;
+  background: var(--lc-violet);
+  color: #000;
+  font-weight: 700;
+}
+
+body.lcars .filename { color: var(--lc-peach); letter-spacing: 0.06em; }
+
+/* Progress: a bar of blocks. */
+body.lcars .bar { height: clamp(10px, 2.4vh, 18px); background: #1d1d1d; border-radius: 999px; }
+body.lcars .bar-fill { background: repeating-linear-gradient(90deg, var(--lc-orange) 0 14px, #000 14px 17px); }
+body.lcars .bar-fill.paused { background: repeating-linear-gradient(90deg, var(--lc-tan) 0 14px, #000 14px 17px); }
+body.lcars .bar-fill.complete { background: repeating-linear-gradient(90deg, #99cc99 0 14px, #000 14px 17px); }
+
+/* ---- the readouts: a bracket down the right ---- */
+body.lcars .stats {
+  border: 0;
+  border-top: 0.9vh solid var(--lc-lavender);
+  border-right: 2.4vw solid var(--lc-lavender);
+  border-bottom: 0.9vh solid var(--lc-lavender);
+  border-radius: 0 3vw 3vw 0;
+  padding: 1vh 1.8vw 1vh 1vw;
+}
+
+body.lcars .big { border-bottom: 2px solid var(--lc-violet); }
+body.lcars .percent { color: var(--lc-orange); letter-spacing: 0.04em; }
+body.lcars .time-left { color: var(--lc-peach); }
+body.lcars .finish-at { color: var(--lc-violet); }
+
+body.lcars .row { letter-spacing: 0.02em; }
+body.lcars .row dt { color: var(--lc-lavender); white-space: nowrap; }
+body.lcars .row dd { color: var(--lc-peach); white-space: nowrap; gap: 0.35em; }
+body.lcars .row .target { color: var(--lc-violet); }
+
+/* A small colored block before each label. */
+body.lcars .row dt::before {
+  content: "";
+  display: inline-block;
+  width: 0.7em;
+  height: 0.8em;
+  margin-right: 0.4em;
+  border-radius: 999px 0 0 999px;
+  background: var(--lc-orange);
+}
+
+body.lcars .row:nth-child(2) dt::before { background: var(--lc-tan); }
+body.lcars .row:nth-child(3) dt::before { background: var(--lc-blue); }
+body.lcars .row:nth-child(4) dt::before { background: var(--lc-violet); }
+body.lcars .row:nth-child(5) dt::before { background: var(--lc-rust); }
+
+body.lcars svg.spark .area { fill: rgba(153, 153, 255, 0.12); }
+body.lcars svg.spark .line { stroke: rgba(153, 153, 255, 0.6); }
+body.lcars .layer-fill { --layer-fill: #ff9900; }
+body.lcars .layer-left { color: var(--lc-orange); }
+body.lcars .temp-change.up { color: var(--lc-orange); }
+body.lcars .temp-change.down { color: var(--lc-blue); }
+
+/* ---- CFS ---- */
+body.lcars .cfs { border-top: 2px solid var(--lc-violet); }
+body.lcars .cfs-unit + .cfs-unit,
+body.lcars .cfs.two-rows .cfs-unit:nth-child(even) { border-left-color: var(--lc-violet); }
+body.lcars .cfs-name { color: var(--lc-tan); letter-spacing: 0.06em; }
+body.lcars .cfs-hum { color: var(--lc-peach); }
+body.lcars .cfs-hum.humid { color: var(--lc-orange); }
+body.lcars .tube { border-color: #555; border-radius: 3px 3px 0 0; background: #000; }
+body.lcars .slot.loaded .tube { border-color: var(--lc-orange); }
+body.lcars .slot.loaded .caret { border-bottom-color: var(--lc-orange); }
+body.lcars .slot-letter, body.lcars .slot-pct { color: var(--lc-lavender); }
+body.lcars .slot.loaded .slot-letter { color: var(--lc-orange); }
+body.lcars .slot.low .slot-pct { color: var(--lc-red); }
+
+/* ---- full-screen camera: no frame ---- */
+body.lcars.camera-full { padding: 0; }
+body.lcars.camera-full .layout { padding: 0; }
+body.lcars.camera-full .layout::before,
+body.lcars.camera-full .layout::after { display: none; }
+body.lcars.camera-full .camera { border-radius: 0; }
+
+/* ---- Controls, dialogs and buttons ---- */
+body.lcars .controls .card {
+  border: 0;
+  border-top: 0.8vh solid var(--lc-violet);
+  border-left: 1.6vw solid var(--lc-violet);
+  border-radius: 2.4vw 0 0 0;
+  background: #000;
+}
+
+body.lcars .controls .temps-card { border-color: var(--lc-tan); }
+body.lcars .controls h2 { color: var(--lc-tan); letter-spacing: 0.08em; }
+body.lcars .jog, body.lcars .heater + .heater { border-top-color: #333; }
+
+body.lcars .ctl-btn {
+  border: 0;
+  border-radius: 999px;
+  background: var(--lc-peach);
+  color: #000;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+body.lcars .ctl-btn.selected { background: var(--lc-orange); color: #000; }
+body.lcars .ctl-btn.danger { background: var(--lc-red); color: #000; }
+body.lcars .ctl-btn.primary { background: var(--lc-orange); color: #000; }
+body.lcars .jog-axis .ctl-btn { background: var(--lc-violet); }
+
+body.lcars .value-box {
+  border: 1px solid var(--lc-orange);
+  border-radius: 0;
+  background: #000;
+  color: var(--lc-peach);
+}
+
+body.lcars .confirm-card,
+body.lcars .numpad-card {
+  border: 0;
+  border-top: 0.8vh solid var(--lc-violet);
+  border-left: 2.4vw solid var(--lc-violet);
+  border-radius: 3vw 0 0 0;
+  background: #000;
+}
+
+body.lcars .confirm-card p,
+body.lcars .numpad-title { color: var(--lc-tan); }
+body.lcars .numpad-field { border-radius: 0; border-color: var(--lc-orange); background: #000; color: var(--lc-peach); }
+
+body.lcars .numpad-keys button {
+  border: 0;
+  border-radius: 999px;
+  background: var(--lc-violet);
+  color: #000;
+  font-weight: 700;
+}
+
+body.lcars .cast-row { border: 0; border-left: 1vw solid var(--lc-lavender); border-radius: 0; }
+body.lcars .cast-row.on { border-left-color: var(--lc-orange); }
+
+body.lcars .toast {
+  border: 0;
+  border-left: 1.6vw solid var(--lc-orange);
+  border-radius: 0 999px 999px 0;
+  background: #000;
+  color: var(--lc-peach);
+}
+
+body.lcars .toast.bad { border-left-color: var(--lc-red); color: var(--lc-red); }

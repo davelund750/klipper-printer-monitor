@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+
+# Local server (make start)
+.run/
+
+# make cast-setup
+.venv/

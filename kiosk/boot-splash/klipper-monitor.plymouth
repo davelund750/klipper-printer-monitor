@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Klipper Printer Monitor
+Description=Warming Up boot splash for the Klipper Printer Monitor kiosk
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/klipper-monitor
+ScriptFile=/usr/share/plymouth/themes/klipper-monitor/klipper-monitor.script

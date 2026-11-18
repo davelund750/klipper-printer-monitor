@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<!-- Must contain "Klipper Printer Monitor": kiosk.sh treats a tab with that title as
+     loaded, and would otherwise reload the dashboard partway through setup. -->
+<title>Klipper Printer Monitor – Setup</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,600;0,700;1,700&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="setup.css">
+</head>
+<body class="setup">
+  <header class="setup-header">
+    <div class="setup-wordmark">Klipper Printer Monitor</div>
+    <div class="setup-progress" id="progress"></div>
+    <button class="setup-cancel" id="cancel" hidden>Cancel</button>
+  </header>
+
+  <!-- Settings screen tabs (after setup); hidden during setup itself. -->
+  <nav class="settings-tabs" id="tabs" hidden></nav>
+
+  <main class="setup-main" id="step"></main>
+
+  <!-- Hidden until a step fills it in, so a bare "Next" never shows. -->
+  <footer class="setup-footer" id="footer" hidden>
+    <button class="setup-btn secondary" id="back">Back</button>
+    <button class="setup-btn primary" id="next">Next</button>
+  </footer>
+
+  <script src="dragscroll.js"></script>
+  <script src="setup.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<!--
+  The boot splash and desktop wallpaper, drawn as a page. make_images.sh
+  screenshots it with headless Chrome:  splash_art.html?text=Warming%20Up
+  Sized for the 800x480 touchscreen.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@1,700&family=Ubuntu:wght@500&display=block" rel="stylesheet">
+<style>
+  html, body {
+    margin: 0;
+    width: 800px;
+    height: 480px;
+    overflow: hidden;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 50% 45%, #1a212b 0%, #0d1117 70%);
+  }
+
+  svg { margin-bottom: 18px; }
+
+  .title {
+    font-family: "Exo 2", sans-serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 72px;
+    line-height: 1;
+    color: #ff9a4d;
+    text-shadow: 0 0 10px rgba(255, 122, 40, 0.75), 0 0 28px rgba(255, 110, 30, 0.45);
+  }
+
+  .sub {
+    margin-top: 22px;
+    font-family: Ubuntu, sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    letter-spacing: 1.5px;
+    color: #8b98a5;
+  }
+</style>
+</head>
+<body>
+  <!-- A hotend laying down the top layer of a print, in the CFS colors. -->
+  <svg width="286" height="146" viewBox="0 0 220 112" aria-hidden="true">
+    <defs>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <!-- layers, bottom up: blue, white, red, then black being printed -->
+    <rect x="30" y="98" width="160" height="10" rx="2" fill="#2D76A6"/>
+    <rect x="30" y="86" width="160" height="10" rx="2" fill="#E6E7E5"/>
+    <rect x="30" y="74" width="160" height="10" rx="2" fill="#C33F31"/>
+    <rect x="30" y="62" width="104" height="10" rx="2" fill="#2B2A2D" stroke="#6b7280" stroke-width="1"/>
+    <!-- hotend: heat block, then nozzle, at the end of the new layer -->
+    <rect x="122" y="6" width="44" height="30" rx="4" fill="#4b5563"/>
+    <rect x="128" y="12" width="32" height="4" rx="2" fill="#6b7280"/>
+    <rect x="128" y="22" width="32" height="4" rx="2" fill="#6b7280"/>
+    <path d="M134 36 h20 l-6 14 h-8 z" fill="#d1a054"/>
+    <!-- hot tip -->
+    <circle cx="144" cy="54" r="4" fill="#ff9a4d" filter="url(#glow)"/>
+  </svg>
+  <div class="title" id="title">Warming Up…</div>
+  <div class="sub">Please wait</div>
+  <script>
+    const text = new URLSearchParams(location.search).get("text");
+    if (text) document.getElementById("title").textContent = `${text}…`;
+  </script>
+</body>
+</html>
