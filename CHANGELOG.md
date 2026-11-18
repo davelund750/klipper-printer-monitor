@@ -10,6 +10,10 @@ and version numbers follow [Semantic Versioning](https://semver.org).
 
 ## Unreleased
 
+No current unreleased changes.
+
+## 1.0.0 - 2026-11-17
+
 First release.
 
 ### Added
@@ -69,3 +73,4 @@ First release.
   sandboxed, so a changed webcam setting on the printer can't run code in
   the dashboard. The camera relay for cast screens (go2rtc) only answers the
   dashboard's own server.
+
